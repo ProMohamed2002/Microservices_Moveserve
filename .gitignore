@@ -1,0 +1,9 @@
+<!-- replace lines1 to1 -->
+```gitignore# OS.DS_StoreThumbs.db# IDE.idea/
+*.iml.vscode/
+
+# Java/Spring Boot/Maventarget/
+
+.idea
+*/target
+
