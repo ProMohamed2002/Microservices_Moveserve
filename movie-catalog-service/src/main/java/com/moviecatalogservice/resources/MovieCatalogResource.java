@@ -1,12 +1,11 @@
 package com.moviecatalogservice.resources;
 
-import com.moviecatalogservice.models.CatalogItem;
-import com.moviecatalogservice.models.Movie;
-import com.moviecatalogservice.models.Rating;
-import com.moviecatalogservice.models.UserRating;
+import com.moviecatalogservice.GrpcClient;
+import com.moviecatalogservice.models.*;
 import com.moviecatalogservice.services.MovieInfoService;
 import com.moviecatalogservice.services.UserRatingService;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/catalog")
+@Slf4j
 public class MovieCatalogResource {
 
     private final RestTemplate restTemplate;
@@ -26,14 +26,16 @@ public class MovieCatalogResource {
     private final MovieInfoService movieInfoService;
 
     private final UserRatingService userRatingService;
+    private final GrpcClient grpcClient;
 
     public MovieCatalogResource(RestTemplate restTemplate,
                                 MovieInfoService movieInfoService,
-                                UserRatingService userRatingService) {
+                                UserRatingService userRatingService, GrpcClient grpcClient) {
 
         this.restTemplate = restTemplate;
         this.movieInfoService = movieInfoService;
         this.userRatingService = userRatingService;
+        this.grpcClient = grpcClient;
     }
 
     /**
@@ -48,4 +50,11 @@ public class MovieCatalogResource {
         List<Rating> ratings = userRatingService.getUserRating(userId).getRatings();
         return ratings.stream().map(movieInfoService::getCatalogItem).collect(Collectors.toList());
     }
-}
+    @GetMapping("/trendy")
+    public List<MovieRating> getTrendyMovies() {
+        log.info("Received request for trendy movies");
+        return grpcClient.getTrendyMovies();
+        }
+    }
+
+
